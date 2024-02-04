@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 @Mapper(componentModel = "spring")
 public abstract class StatsMapper {
-    protected final static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    protected static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public Stats statsDtoRequestToStats(StatsDtoRequest statsDtoRequest) {
         Stats stats = new Stats();

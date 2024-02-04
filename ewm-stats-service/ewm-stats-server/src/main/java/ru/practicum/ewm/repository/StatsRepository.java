@@ -28,4 +28,5 @@ public interface StatsRepository extends JpaRepository<Stats, Long> {
             "FROM Stats AS s WHERE (s.timestamp BETWEEN ?1 AND ?2) AND (s.uri in ?3) GROUP BY s.app, s.uri, s.ip " +
             "ORDER BY COUNT(s.app) DESC")
     List<StatsDtoResponse> countHitsByNonUniqueIpAndDateBetweenAndUrisIn(LocalDateTime start, LocalDateTime end,
-                                                                         List<String> uris);}
+                                                                         List<String> uris);
+}
