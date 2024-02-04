@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class StatsClient extends BaseClient {
     private static final String API_PREFIX = "/stats";
-    protected final static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    protected static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 
     @Autowired
