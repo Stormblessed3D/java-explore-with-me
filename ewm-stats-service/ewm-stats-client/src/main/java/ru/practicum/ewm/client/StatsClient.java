@@ -11,6 +11,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 
 public class StatsClient extends BaseClient {
@@ -28,16 +29,17 @@ public class StatsClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, String uris, boolean unique) {
+    public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
         String encodedStartTime = encodeValue(start.format(DATE_TIME_FORMATTER));
         String encodedEndTime = encodeValue(end.format(DATE_TIME_FORMATTER));
+        String encodedUris = encodeValue(String.join(", ", uris));
         Map<String, Object> parameters = Map.of(
                 "start", encodedStartTime,
                 "end", encodedEndTime,
-                "uris", uris,
+                "uris", encodedUris,
                 "unique", unique
         );
-        return get("?start={encodedStartTime}&end={encodedEndTime}&uris={uris}&unique={unique}", parameters);
+        return get("?start={encodedStartTime}&end={encodedEndTime}&uris={encodedUris}&unique={unique}", parameters);
     }
 
     private String encodeValue(String value) {

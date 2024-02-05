@@ -1,5 +1,6 @@
 package ru.practicum.ewm;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 
 @Data
 @EqualsAndHashCode
@@ -22,9 +24,10 @@ public class StatsDtoRequest {
     @NotBlank
     @Size(max = 255)
     private String ip;
-    private String timestamp;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime timestamp;
 
-    public StatsDtoRequest(String app, String uri, String ip, String timestamp) {
+    public StatsDtoRequest(String app, String uri, String ip, LocalDateTime timestamp) {
         this.app = app;
         this.uri = uri;
         this.ip = ip;

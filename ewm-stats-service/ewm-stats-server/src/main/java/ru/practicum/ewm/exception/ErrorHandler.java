@@ -12,7 +12,7 @@ import javax.validation.ValidationException;
 
 @RestControllerAdvice
 @Slf4j
-public class ErrorHanlder {
+public class ErrorHandler {
 
     @ExceptionHandler({MethodArgumentNotValidException.class, ValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
