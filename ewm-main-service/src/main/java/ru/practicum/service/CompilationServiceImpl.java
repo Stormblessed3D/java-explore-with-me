@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,21 +50,22 @@ public class CompilationServiceImpl implements CompilationService {
     public List<CompilationDto> getCompilations(Optional<Boolean> pinned, Integer from, Integer size) {
         int page = from / size;
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
-        Page<Compilation> compilations;
+        Page<Compilation> compilationPage;
         if (pinned.isEmpty()) {
-            compilations = compilationRepository.findAll(pageRequest);
+            compilationPage = compilationRepository.findAll(pageRequest);
         } else {
-            compilations = compilationRepository.findAllByPinned(pinned.get(), pageRequest);
+            compilationPage = compilationRepository.findAllByPinned(pinned.get(), pageRequest);
         }
-        List<Compilation> compilations1 = compilations.getContent();
+        List<Compilation> compilations = compilationPage.getContent();
         Set<Event> events = new HashSet<>();
-        for (Compilation c : compilations1) {
+        for (Compilation c : compilations) {
             events.addAll(c.getEvents());
         }
-        List<CompilationDto> compilationDtos = compilationMapper.compilationToCompilationDto(compilations1);
+        List<CompilationDto> compilationDtos = compilationMapper.compilationToCompilationDto(compilations);
         Map<Event, Long> confirmedRequests = getConfirmedRequests(new ArrayList<>(events));
+
         return compilationDtos.stream()
-                .map(c -> setConfirmedReviewsAndViews(new ArrayList<>(events), confirmedRequests, c))
+                .map(c -> setConfirmedReviewsAndViewsForEventShortDto(new ArrayList<>(c.getEvents()), confirmedRequests, c))
                 .collect(Collectors.toList());
     }
 
@@ -149,5 +151,32 @@ public class CompilationServiceImpl implements CompilationService {
     private Map<Event, Long> getConfirmedRequests(List<Event> events) {
         return requestRepository.findAllByEventInAndStatus(events, RequestStatus.CONFIRMED).stream()
                 .collect(Collectors.groupingBy(ParticipationRequest::getEvent, Collectors.counting()));
+    }
+
+    private CompilationDto setConfirmedReviewsAndViewsForEventShortDto(List<EventShortDto> events, Map<Event, Long> confirmedRequests,
+                                                       CompilationDto compilationDto) {
+        List<String> uris = events.stream()
+                .map(e -> "/events/" + e.getId())
+                .collect(Collectors.toList());
+        List<StatsDtoResponse> viewStats = statisticsClient.getStats(LocalDateTime.now().minusYears(100),
+                LocalDateTime.now(), uris, true);
+        Map<Long, Long> eventViews = viewStats.stream()
+                .filter(v -> !("/events".equals(v.getUri())))
+                .collect(Collectors.toMap(
+                        v -> Long.parseLong(String.valueOf(v.getUri().charAt(v.getUri().length() - 1))),
+                        v -> v.getHits()
+                ));
+        List<EventShortDto> eventsWithRequestsAndViews = new ArrayList<>();
+        if (!events.isEmpty()) {
+            for (EventShortDto event : events) {
+                Long views = eventViews.get(event.getId());
+                Long confirmedRequestsCount = confirmedRequests.get(event);
+                event.setViews(Objects.requireNonNullElse(views, 0L));
+                event.setConfirmedRequests(Objects.requireNonNullElse(confirmedRequestsCount, 0L));
+                eventsWithRequestsAndViews.add(event);
+            }
+        }
+        compilationDto.setEvents(new HashSet<>(eventsWithRequestsAndViews));
+        return compilationDto;
     }
 }
