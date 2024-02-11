@@ -29,13 +29,13 @@ public class CompilationAdminController {
     private final CompilationService compilationService;
 
     @PostMapping
-    public ResponseEntity<CompilationDto> createCompilation(@RequestBody @Valid NewCompilationDto compilationDto){
+    public ResponseEntity<CompilationDto> createCompilation(@RequestBody @Valid NewCompilationDto compilationDto) {
         log.info("POST admin запрос на добавление новой подборки {}", compilationDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(compilationService.createCompilationAdmin(compilationDto));
     }
 
     @DeleteMapping("/{compId}")
-    public ResponseEntity<CompilationDto> deleteCompilation(@PathVariable @Positive Long compId){
+    public ResponseEntity<CompilationDto> deleteCompilation(@PathVariable @Positive Long compId) {
         log.info("DELETE admin запрос на удаление подборки с id {}", compId);
         compilationService.deleteCompilationAdmin(compId);
         return ResponseEntity.noContent().build();
