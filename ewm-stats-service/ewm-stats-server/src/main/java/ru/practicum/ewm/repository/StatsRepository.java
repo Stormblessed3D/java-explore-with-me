@@ -11,7 +11,7 @@ import java.util.List;
 public interface StatsRepository extends JpaRepository<Stats, Long> {
 
     @Query("SELECT new ru.practicum.ewm.StatsDtoResponse(s.app, s.uri, COUNT(distinct s.app)) " +
-            "FROM Stats AS s WHERE s.timestamp BETWEEN ?1 AND ?2 GROUP BY s.app, s.uri, s.ip ORDER BY COUNT(s.app) DESC")
+            "FROM Stats AS s WHERE s.timestamp BETWEEN ?1 AND ?2 GROUP BY s.app, s.uri, s.ip ORDER BY COUNT(distinct s.app) DESC")
     List<StatsDtoResponse> countHitsByUniqueIpAndDateBetween(LocalDateTime start, LocalDateTime end);
 
     @Query("SELECT new ru.practicum.ewm.StatsDtoResponse(s.app, s.uri, COUNT(s.app)) " +
@@ -20,7 +20,7 @@ public interface StatsRepository extends JpaRepository<Stats, Long> {
 
     @Query("SELECT new ru.practicum.ewm.StatsDtoResponse(s.app, s.uri, COUNT(distinct s.app)) " +
             "FROM Stats AS s WHERE (s.timestamp BETWEEN ?1 AND ?2) AND (s.uri in ?3) GROUP BY s.app, s.uri, s.ip " +
-            "ORDER BY COUNT(s.app) DESC")
+            "ORDER BY COUNT(distinct s.app) DESC")
     List<StatsDtoResponse> countHitsByUniqueIpAndDateBetweenAndUrisIn(LocalDateTime start, LocalDateTime end,
                                                                       List<String> uris);
 
