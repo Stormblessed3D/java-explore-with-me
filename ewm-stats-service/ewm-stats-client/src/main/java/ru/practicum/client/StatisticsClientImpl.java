@@ -27,7 +27,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
-@PropertySource("classpath:stats-application.properties")
+@PropertySource("classpath:application.properties")
 public class StatisticsClientImpl implements  StatisticsClient {
     private final RestTemplate restTemplate;
     private static final String STATS_BASE_URL = "/stats";

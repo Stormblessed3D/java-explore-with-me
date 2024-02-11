@@ -7,7 +7,9 @@ services:
     ports:
       - "9090:9090"
     depends_on:
-      - stats-db
+      stats-db:
+        condition: service_started
+
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/ewm-stats
       - SPRING_DATASOURCE_USERNAME=root
@@ -19,7 +21,7 @@ services:
     volumes:
       - /var/lib/postgresql/data/
     ports:
-      - "6541:5432"
+      - "6556:5432"
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
@@ -32,8 +34,10 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - ewm-db
-      - stats-server
+      ewm-db:
+        condition: service_started
+      stats-server:
+        condition: service_started
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm-main
       - SPRING_DATASOURCE_USERNAME=root
@@ -45,7 +49,7 @@ services:
     volumes:
       - /var/lib/postgresql/data/
     ports:
-      - "6542:5432"
+      - "6555:5432"
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
