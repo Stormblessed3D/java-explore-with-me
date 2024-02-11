@@ -11,7 +11,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 public class NewCompilationDto {
-    private Set<Long> events;
+    private Set<Long> events = new HashSet<>();
     @NotBlank
     @Size(min = 1, max = 50)
     private String title;
@@ -20,8 +20,6 @@ public class NewCompilationDto {
     public NewCompilationDto(Set<Long> events, Boolean pinned, String title) {
         if (events != null) {
             this.events = events;
-        } else {
-            events = new HashSet<>();
         }
         if (pinned != null) {
             this.pinned = pinned;
