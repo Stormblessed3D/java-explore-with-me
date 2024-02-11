@@ -62,8 +62,7 @@ public class CompilationServiceImpl implements CompilationService {
             events.addAll(c.getEvents());
         }
         List<CompilationDto> compilationDtos = compilationMapper.compilationToCompilationDto(compilations);
-        Map<Event, Long> confirmedRequests = getConfirmedRequests(new ArrayList<>(events));
-
+        Map<Long, Long> confirmedRequests = getConfirmedRequestsId(new ArrayList<>(events));
         return compilationDtos.stream()
                 .map(c -> setConfirmedReviewsAndViewsForEventShortDto(new ArrayList<>(c.getEvents()), confirmedRequests, c))
                 .collect(Collectors.toList());
@@ -153,7 +152,12 @@ public class CompilationServiceImpl implements CompilationService {
                 .collect(Collectors.groupingBy(ParticipationRequest::getEvent, Collectors.counting()));
     }
 
-    private CompilationDto setConfirmedReviewsAndViewsForEventShortDto(List<EventShortDto> events, Map<Event, Long> confirmedRequests,
+    private Map<Long, Long> getConfirmedRequestsId(List<Event> events) {
+        return requestRepository.findAllByEventInAndStatus(events, RequestStatus.CONFIRMED).stream()
+                .collect(Collectors.groupingBy(p -> p.getEvent().getId(), Collectors.counting()));
+    }
+
+    private CompilationDto setConfirmedReviewsAndViewsForEventShortDto(List<EventShortDto> events, Map<Long, Long> confirmedRequests,
                                                        CompilationDto compilationDto) {
         List<String> uris = events.stream()
                 .map(e -> "/events/" + e.getId())
@@ -170,7 +174,7 @@ public class CompilationServiceImpl implements CompilationService {
         if (!events.isEmpty()) {
             for (EventShortDto event : events) {
                 Long views = eventViews.get(event.getId());
-                Long confirmedRequestsCount = confirmedRequests.get(event);
+                Long confirmedRequestsCount = confirmedRequests.get(event.getId());
                 event.setViews(Objects.requireNonNullElse(views, 0L));
                 event.setConfirmedRequests(Objects.requireNonNullElse(confirmedRequestsCount, 0L));
                 eventsWithRequestsAndViews.add(event);
