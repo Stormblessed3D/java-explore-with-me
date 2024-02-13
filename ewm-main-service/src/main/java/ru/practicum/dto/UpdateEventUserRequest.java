@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UpdateEventUserRequest extends UpdateEventRequest {
     private StateAction stateAction;
+
     public enum StateAction {
         SEND_TO_REVIEW,
         CANCEL_REVIEW
