@@ -23,6 +23,7 @@ import ru.practicum.exception.EventTimeException;
 import ru.practicum.mapper.EventMapper;
 import ru.practicum.mapper.RequestMapper;
 import ru.practicum.model.Category;
+import ru.practicum.model.Comment;
 import ru.practicum.model.Event;
 import ru.practicum.model.EventState;
 import ru.practicum.model.ParticipationRequest;
@@ -31,6 +32,7 @@ import ru.practicum.model.RequestStatus;
 import ru.practicum.model.SortParameter;
 import ru.practicum.model.User;
 import ru.practicum.repository.CategoryRepository;
+import ru.practicum.repository.CommentRepository;
 import ru.practicum.repository.EventRepository;
 import ru.practicum.repository.RequestRepository;
 import ru.practicum.repository.UserRepository;
@@ -46,6 +48,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
@@ -53,6 +57,7 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final RequestRepository requestRepository;
+    private final CommentRepository commentRepository;
     private final EventMapper eventMapper;
     private final RequestMapper requestMapper;
     private final StatisticsClient statisticsClient;
@@ -66,7 +71,7 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Category with id=%d was not found",
                         eventDto.getCategory())));
         Event event = eventMapper.newEventDtoToEvent(eventDto, user, category);
-        return eventMapper.eventToEventFullDto(eventRepository.save(event), 0L, 0L);
+        return eventMapper.eventToEventFullDto(eventRepository.save(event), 0L, 0L,  List.of());
     }
 
     @Override
@@ -80,8 +85,9 @@ public class EventServiceImpl implements EventService {
         }
         Map<Long, Long> confirmedRequests = getConfirmedRequests(List.of(event));
         Map<Long, Long> views = getEventViews(List.of(event));
+        Map<Event, List<Comment>> comments = getComments(event);
         return eventMapper.eventToEventFullDto(event, confirmedRequests.getOrDefault(event.getId(), 0L),
-                views.getOrDefault(event.getId(), 0L));
+                views.getOrDefault(event.getId(), 0L), comments.getOrDefault(event, List.of()));
     }
 
     @Override
@@ -137,8 +143,9 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.save(eventToUpdate);
         Map<Long, Long> confirmedRequests = getConfirmedRequests(List.of(event));
         Map<Long, Long> views = getEventViews(List.of(event));
+        Map<Event, List<Comment>> comments = getComments(event);
         return eventMapper.eventToEventFullDto(event, confirmedRequests.getOrDefault(event.getId(), 0L),
-                views.getOrDefault(event.getId(), 0L));
+                views.getOrDefault(event.getId(), 0L), comments.getOrDefault(event, List.of()));
     }
 
     @Override
@@ -190,11 +197,14 @@ public class EventServiceImpl implements EventService {
         List<Event> events1 = events.getContent();
         Map<Long, Long> confirmedRequests = getConfirmedRequests(events1);
         Map<Long, Long> eventViews = getEventViews(events1);
+        Map<Event, List<Comment>> comments = getComments(events1);
+
         List<EventFullDto> eventsFullDtos = new ArrayList<>();
         for (Event event : events1) {
             Long views = eventViews.get(event.getId());
             Long numberOfConfirmedRequests = confirmedRequests.get(event.getId());
-            EventFullDto eventDto = eventMapper.eventToEventFullDto(event, numberOfConfirmedRequests, views);
+            List<Comment> eventComments = comments.getOrDefault(event, List.of());
+            EventFullDto eventDto = eventMapper.eventToEventFullDto(event, numberOfConfirmedRequests, views, eventComments);
             eventsFullDtos.add(eventDto);
         }
         eventsFullDtos.sort(Comparator.comparing(EventFullDto::getViews).reversed());
@@ -244,8 +254,9 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Event with id=%d was not found", eventId)));
         Map<Long, Long> confirmedRequests = getConfirmedRequests(List.of(event));
         Map<Long, Long> views = getEventViews(List.of(event));
+        Map<Event, List<Comment>> comments = getComments(event);
         return eventMapper.eventToEventFullDto(event, confirmedRequests.getOrDefault(event.getId(), 0L),
-                views.getOrDefault(event.getId(), 0L));
+                views.getOrDefault(event.getId(), 0L), comments.getOrDefault(event, List.of()));
     }
 
     @Override
@@ -285,8 +296,9 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.save(eventToUpdate);
         Map<Long, Long> confirmedRequests = getConfirmedRequests(List.of(event));
         Map<Long, Long> views = getEventViews(List.of(event));
+        Map<Event, List<Comment>> comments = getComments(event);
         return eventMapper.eventToEventFullDto(event, confirmedRequests.getOrDefault(event.getId(), 0L),
-                views.getOrDefault(event.getId(), 0L));
+                views.getOrDefault(event.getId(), 0L), comments.getOrDefault(event, List.of()));
     }
 
     private boolean isParticipantLimitAchieved(Event event) {
@@ -373,5 +385,15 @@ public class EventServiceImpl implements EventService {
         return conditions.stream()
                 .reduce(BooleanExpression::and)
                 .get();
+    }
+
+    private Map<Event, List<Comment>> getComments(List<Event> events) {
+        return commentRepository.findByEventIn(events, Sort.by(DESC, "createdOn")).stream()
+                .collect(Collectors.groupingBy(Comment::getEvent));
+    }
+
+    private Map<Event, List<Comment>> getComments(Event event) {
+        return commentRepository.findByEvent(event, Sort.by(DESC, "createdOn")).stream()
+                .collect(Collectors.groupingBy(Comment::getEvent));
     }
 }
