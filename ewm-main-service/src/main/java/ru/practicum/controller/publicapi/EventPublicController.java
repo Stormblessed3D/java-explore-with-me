@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.client.StatisticsClient;
 import ru.practicum.dto.EventFullDto;
 import ru.practicum.dto.EventShortDto;
-import ru.practicum.ewm.StatsDtoRequest;
 import ru.practicum.model.EventState;
 import ru.practicum.model.SortParameter;
 import ru.practicum.service.EventService;
@@ -60,16 +59,14 @@ public class EventPublicController {
                 .from(from)
                 .size(size)
                 .build();
-        statisticsClient.saveHit(new StatsDtoRequest("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
-                LocalDateTime.now()));
+        statisticsClient.saveHit(request);
         return ResponseEntity.ok(eventService.getEventsPublic(eventsAdminRequest, onlyAvailable, sort, from, size));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EventFullDto> getEventPublic(@PathVariable @Positive Long id, HttpServletRequest request) {
         log.info("GET public запрос на получение подробной информации об опубликованном событии по id {}", id);
-        statisticsClient.saveHit(new StatsDtoRequest("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(),
-                LocalDateTime.now()));
+        statisticsClient.saveHit(request);
         return ResponseEntity.ok(eventService.getEventPublic(id));
     }
 }

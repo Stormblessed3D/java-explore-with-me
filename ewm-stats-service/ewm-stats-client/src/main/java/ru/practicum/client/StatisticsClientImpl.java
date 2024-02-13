@@ -18,6 +18,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.ewm.StatsDtoRequest;
 import ru.practicum.ewm.StatsDtoResponse;
 
+import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -33,6 +34,8 @@ public class StatisticsClientImpl implements  StatisticsClient {
     private static final String STATS_BASE_URL = "/stats";
     private static final String HITS_BASE_URL = "/hit";
     protected static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    @Value("${app.name}")
+    private String appName;
 
     @Autowired
     public StatisticsClientImpl(@Value("${ewm-stats-server.url}") String serverUrl, RestTemplateBuilder builder) {
@@ -70,7 +73,9 @@ public class StatisticsClientImpl implements  StatisticsClient {
     }
 
     @Override
-    public void saveHit(StatsDtoRequest statsDtoRequest) {
+    public void saveHit(HttpServletRequest request) {
+        StatsDtoRequest statsDtoRequest = new StatsDtoRequest(appName, request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now());
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         HttpEntity<StatsDtoRequest> requestEntity = new HttpEntity<>(statsDtoRequest, headers);

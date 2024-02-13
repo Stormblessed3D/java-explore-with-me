@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import ru.practicum.model.Event;
 import ru.practicum.model.ParticipationRequest;
 import ru.practicum.model.RequestStatus;
+import ru.practicum.util.RequestShortCount;
 
 import java.util.List;
 
@@ -45,4 +46,12 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
             "join pr.requester as r " +
             "where r.id = ?1 and e.id = ?2")
     boolean existsByRequesterIdAndEventId(Long userId, Long eventId);
+
+
+    @Query("SELECT new ru.practicum.util.RequestShortCount(pr.event.id, COUNT(pr.event.id)) " +
+            "FROM ParticipationRequest AS pr " +
+            "JOIN pr.event as e " +
+            "WHERE (e in ?1) AND (pr.status = ?2) " +
+            "GROUP BY pr.event.id")
+    List<RequestShortCount> countByEventInAndStatus(List<Event> events, RequestStatus status);
 }

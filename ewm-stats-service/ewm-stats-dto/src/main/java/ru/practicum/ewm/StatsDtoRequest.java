@@ -33,4 +33,8 @@ public class StatsDtoRequest {
         this.ip = ip;
         this.timestamp = timestamp;
     }
+
+    public StatsDtoRequest(String app) {
+        this.app = app;
+    }
 }

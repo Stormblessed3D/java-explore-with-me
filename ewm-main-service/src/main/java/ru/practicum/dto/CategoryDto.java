@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CategoryDto {
     @EqualsAndHashCode.Include
-    Long id;
-    String name;
+    private Long id;
+    private String name;
 
     public CategoryDto(Long id, String name) {
         this.id = id;

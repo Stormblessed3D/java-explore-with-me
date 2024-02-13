@@ -18,11 +18,11 @@ import ru.practicum.mapper.CompilationMapper;
 import ru.practicum.mapper.EventMapper;
 import ru.practicum.model.Compilation;
 import ru.practicum.model.Event;
-import ru.practicum.model.ParticipationRequest;
 import ru.practicum.model.RequestStatus;
 import ru.practicum.repository.CompilationRepository;
 import ru.practicum.repository.EventRepository;
 import ru.practicum.repository.RequestRepository;
+import ru.practicum.util.RequestShortCount;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
@@ -57,14 +57,17 @@ public class CompilationServiceImpl implements CompilationService {
             compilationPage = compilationRepository.findAllByPinned(pinned.get(), pageRequest);
         }
         List<Compilation> compilations = compilationPage.getContent();
+        Map<Long, Set<Event>> eventsByCompilation = compilations.stream()
+                .collect(Collectors.toMap(Compilation::getId, Compilation::getEvents));
         Set<Event> events = new HashSet<>();
         for (Compilation c : compilations) {
             events.addAll(c.getEvents());
         }
         List<CompilationDto> compilationDtos = compilationMapper.compilationToCompilationDto(compilations);
-        Map<Long, Long> confirmedRequests = getConfirmedRequestsId(new ArrayList<>(events));
+        Map<Long, Long> confirmedRequests = getConfirmedRequests(new ArrayList<>(events));
         return compilationDtos.stream()
-                .map(c -> setConfirmedReviewsAndViewsForEventShortDto(new ArrayList<>(c.getEvents()), confirmedRequests, c))
+                .map(compDto -> setConfirmedReviewsAndViews(new ArrayList<>(eventsByCompilation.get(compDto.getId())),
+                        confirmedRequests, compDto))
                 .collect(Collectors.toList());
     }
 
@@ -76,7 +79,7 @@ public class CompilationServiceImpl implements CompilationService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Compilation with id=%d was not found", compId)));
         CompilationDto compilationDto = compilationMapper.compilationToCompilationDto(compilation);
         List<Event> events = new ArrayList<>(compilation.getEvents());
-        Map<Event, Long> confirmedRequests = getConfirmedRequests(new ArrayList<>(events));
+        Map<Long, Long> confirmedRequests = getConfirmedRequests(new ArrayList<>(events));
         return setConfirmedReviewsAndViews(events, confirmedRequests, compilationDto);
     }
 
@@ -91,7 +94,7 @@ public class CompilationServiceImpl implements CompilationService {
         compilation.setEvents(events);
         compilationRepository.save(compilation);
         CompilationDto compilationDto = compilationMapper.compilationToCompilationDto(compilation);
-        Map<Event, Long> confirmedRequests = getConfirmedRequests(new ArrayList<>(events));
+        Map<Long, Long> confirmedRequests = getConfirmedRequests(new ArrayList<>(events));
         return setConfirmedReviewsAndViews(new ArrayList<>(events), confirmedRequests, compilationDto);
     }
 
@@ -117,67 +120,45 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation updatedCompilation = compilationMapper.updateFromDto(compilationToUpdate, updateCompilationRequest, events);
         compilationRepository.save(updatedCompilation);
         CompilationDto compilationDto = compilationMapper.compilationToCompilationDto(updatedCompilation);
-        Map<Event, Long> confirmedRequests = getConfirmedRequests(new ArrayList<>(events));
+        Map<Long, Long> confirmedRequests = getConfirmedRequests(new ArrayList<>(events));
         return setConfirmedReviewsAndViews(new ArrayList<>(events), confirmedRequests, compilationDto);
     }
 
-    private CompilationDto setConfirmedReviewsAndViews(List<Event> events, Map<Event, Long> confirmedRequests,
-                                                       CompilationDto compilationDto) {
+    private Map<Long, Long> getConfirmedRequests(List<Event> events) {
+        return requestRepository.countByEventInAndStatus(events, RequestStatus.CONFIRMED).stream()
+                .collect(Collectors.toMap(RequestShortCount::getEventId, RequestShortCount::getCount));
+    }
+
+    private CompilationDto setConfirmedReviewsAndViews(List<Event> events, Map<Long, Long> confirmedRequests,
+                                                             CompilationDto compilationDto) {
         List<String> uris = events.stream()
                 .map(e -> "/events/" + e.getId())
                 .collect(Collectors.toList());
-        List<StatsDtoResponse> viewStats = statisticsClient.getStats(LocalDateTime.now().minusYears(100),
-                LocalDateTime.now(), uris, true);
+        List<StatsDtoResponse> viewStats;
+        List<LocalDateTime> dates = events.stream()
+                .map(Event::getPublishedOn)
+                .filter(Objects::nonNull)
+                .sorted()
+                .collect(Collectors.toList());
+        if (!dates.isEmpty()) {
+            viewStats = statisticsClient.getStats(dates.get(0), LocalDateTime.now(), uris, true);
+        } else {
+            viewStats = List.of();
+        }
         Map<Long, Long> eventViews = viewStats.stream()
                 .filter(v -> !("/events".equals(v.getUri())))
                 .collect(Collectors.toMap(
                         v -> Long.parseLong(String.valueOf(v.getUri().charAt(v.getUri().length() - 1))),
-                        v -> v.getHits()
-                ));
+                        v -> v.getHits(),
+                        (first, second) -> first + second)
+                );
         List<EventShortDto> eventsWithRequestsAndViews = new ArrayList<>();
         if (!events.isEmpty()) {
             for (Event event : events) {
                 Long views = eventViews.get(event.getId());
-                Long confirmedRequestsCount = confirmedRequests.get(event);
+                Long confirmedRequestsCount = confirmedRequests.get(event.getId());
                 EventShortDto eventDto = eventMapper.eventToEventShortDto(event, confirmedRequestsCount, views);
                 eventsWithRequestsAndViews.add(eventDto);
-            }
-        }
-        compilationDto.setEvents(new HashSet<>(eventsWithRequestsAndViews));
-        return compilationDto;
-    }
-
-    private Map<Event, Long> getConfirmedRequests(List<Event> events) {
-        return requestRepository.findAllByEventInAndStatus(events, RequestStatus.CONFIRMED).stream()
-                .collect(Collectors.groupingBy(ParticipationRequest::getEvent, Collectors.counting()));
-    }
-
-    private Map<Long, Long> getConfirmedRequestsId(List<Event> events) {
-        return requestRepository.findAllByEventInAndStatus(events, RequestStatus.CONFIRMED).stream()
-                .collect(Collectors.groupingBy(p -> p.getEvent().getId(), Collectors.counting()));
-    }
-
-    private CompilationDto setConfirmedReviewsAndViewsForEventShortDto(List<EventShortDto> events, Map<Long, Long> confirmedRequests,
-                                                       CompilationDto compilationDto) {
-        List<String> uris = events.stream()
-                .map(e -> "/events/" + e.getId())
-                .collect(Collectors.toList());
-        List<StatsDtoResponse> viewStats = statisticsClient.getStats(LocalDateTime.now().minusYears(100),
-                LocalDateTime.now(), uris, true);
-        Map<Long, Long> eventViews = viewStats.stream()
-                .filter(v -> !("/events".equals(v.getUri())))
-                .collect(Collectors.toMap(
-                        v -> Long.parseLong(String.valueOf(v.getUri().charAt(v.getUri().length() - 1))),
-                        v -> v.getHits()
-                ));
-        List<EventShortDto> eventsWithRequestsAndViews = new ArrayList<>();
-        if (!events.isEmpty()) {
-            for (EventShortDto event : events) {
-                Long views = eventViews.get(event.getId());
-                Long confirmedRequestsCount = confirmedRequests.get(event.getId());
-                event.setViews(Objects.requireNonNullElse(views, 0L));
-                event.setConfirmedRequests(Objects.requireNonNullElse(confirmedRequestsCount, 0L));
-                eventsWithRequestsAndViews.add(event);
             }
         }
         compilationDto.setEvents(new HashSet<>(eventsWithRequestsAndViews));

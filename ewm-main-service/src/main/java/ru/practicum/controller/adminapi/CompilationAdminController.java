@@ -35,7 +35,7 @@ public class CompilationAdminController {
     }
 
     @DeleteMapping("/{compId}")
-    public ResponseEntity<CompilationDto> deleteCompilation(@PathVariable @Positive Long compId) {
+    public ResponseEntity<Void> deleteCompilation(@PathVariable @Positive Long compId) {
         log.info("DELETE admin запрос на удаление подборки с id {}", compId);
         compilationService.deleteCompilationAdmin(compId);
         return ResponseEntity.noContent().build();
