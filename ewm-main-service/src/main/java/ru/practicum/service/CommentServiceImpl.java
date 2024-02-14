@@ -9,9 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.CommentDtoRequest;
 import ru.practicum.dto.CommentDtoResponse;
 import ru.practicum.exception.CommentException;
+import ru.practicum.exception.EventStatusException;
 import ru.practicum.mapper.CommentMapper;
 import ru.practicum.model.Comment;
 import ru.practicum.model.Event;
+import ru.practicum.model.EventState;
 import ru.practicum.model.User;
 import ru.practicum.repository.CommentRepository;
 import ru.practicum.repository.EventRepository;
@@ -49,9 +51,7 @@ public class CommentServiceImpl implements CommentService {
         checkIsAuthor(commentToUpdate.getAuthor().getId(), userId);
         LocalDateTime modifiedOn = LocalDateTime.now();
         checkTimeUpdate(commentToUpdate.getCreatedOn(), modifiedOn);
-        if (commentDtoRequest.getText() != null) {
-            commentToUpdate.setText(commentDtoRequest.getText());
-        }
+        commentToUpdate.setText(commentDtoRequest.getText());
         commentToUpdate.setModifiedOn(modifiedOn);
         return commentMapper.commentToCommentDtoResponse(commentRepository.save(commentToUpdate));
     }
@@ -61,9 +61,7 @@ public class CommentServiceImpl implements CommentService {
     public CommentDtoResponse updateCommentAdmin(CommentDtoRequest commentDtoRequest, Long commentId) {
         Comment commentToUpdate = commentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("User with id=%d was not found", commentId)));
-        if (commentDtoRequest.getText() != null) {
-            commentToUpdate.setText(commentDtoRequest.getText());
-        }
+        commentToUpdate.setText(commentDtoRequest.getText());
         commentToUpdate.setModifiedOn(LocalDateTime.now());
         return commentMapper.commentToCommentDtoResponse(commentRepository.save(commentToUpdate));
     }
@@ -84,6 +82,21 @@ public class CommentServiceImpl implements CommentService {
             throw new EntityNotFoundException(String.format("Comment with id=%d was not found", commentId));
         }
         commentRepository.deleteById(commentId);
+    }
+
+    @Override
+    @Transactional
+    public List<CommentDtoResponse> getCommentsByEvent(Long eventId, Integer from, Integer size) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Event with id=%d was not found", eventId)));
+        if (event.getState() != EventState.PUBLISHED) {
+            throw new EventStatusException(String.format("Event with id=%d is not published", eventId));
+        }
+        int page = from / size;
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdOn"));
+        Page<Comment> commentsPageable = commentRepository.findByEventId(eventId, pageRequest);
+        List<Comment> comments = commentsPageable.getContent();
+        return commentMapper.commentToCommentDtoResponse(comments);
     }
 
     private void checkIsAuthor(Long authorId, Long userId) {

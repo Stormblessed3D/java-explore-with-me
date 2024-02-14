@@ -12,13 +12,11 @@ import ru.practicum.dto.NewEventDto;
 import ru.practicum.dto.UpdateEventAdminRequest;
 import ru.practicum.dto.UpdateEventUserRequest;
 import ru.practicum.model.Category;
-import ru.practicum.model.Comment;
 import ru.practicum.model.Event;
 import ru.practicum.model.EventState;
 import ru.practicum.model.User;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 
 @Mapper(componentModel = "spring",
@@ -46,7 +44,7 @@ public abstract class EventMapper {
                 .build();
     }
 
-    public EventFullDto eventToEventFullDto(Event event, Long confirmedRequests, Long views, List<Comment> comments) {
+    public EventFullDto eventToEventFullDto(Event event, Long confirmedRequests, Long views, Long numberOfComments) {
         return EventFullDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
@@ -64,7 +62,7 @@ public abstract class EventMapper {
                 .state(event.getState())
                 .title(event.getTitle())
                 .views(Objects.requireNonNullElse(views, 0L))
-                .comments(commentMapper.commentToCommentDtoResponse(comments))
+                .numberOfComments(numberOfComments)
                 .build();
     }
 

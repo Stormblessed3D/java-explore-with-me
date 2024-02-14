@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "30971072-447a-4449-826c-d9e5052915a3",
 		"name": "Comments",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "29332259"
 	},
 	"item": [
@@ -59,7 +59,16 @@
 						}
 					}
 				},
-				"url": "{{baseUrl1}}/admin/users"
+				"url": {
+					"raw": "{{baseUrl1}}/admin/users",
+					"host": [
+						"{{baseUrl1}}"
+					],
+					"path": [
+						"admin",
+						"users"
+					]
+				}
 			},
 			"response": []
 		},
@@ -116,7 +125,16 @@
 						}
 					}
 				},
-				"url": "{{baseUrl1}}/admin/users"
+				"url": {
+					"raw": "{{baseUrl1}}/admin/users",
+					"host": [
+						"{{baseUrl1}}"
+					],
+					"path": [
+						"admin",
+						"users"
+					]
+				}
 			},
 			"response": []
 		},
@@ -156,7 +174,16 @@
 						}
 					}
 				},
-				"url": "{{baseUrl1}}/admin/categories"
+				"url": {
+					"raw": "{{baseUrl1}}/admin/categories",
+					"host": [
+						"{{baseUrl1}}"
+					],
+					"path": [
+						"admin",
+						"categories"
+					]
+				}
 			},
 			"response": []
 		},
@@ -1171,6 +1198,77 @@
 			"response": []
 		},
 		{
+			"name": "Получение всех комментариев к событию со статусом НЕ PUBLISHED",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code should be 200\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);\r",
+							"});\r",
+							"pm.test(\"Test event 'id' field\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('id');\r",
+							"    pm.expect(jsonData.id, '\"id\" must be \"1\"').to.eql(1);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Test list of comments\", function () {\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.comments.length, 'List length must be 2').to.eql(2);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Test comment[0] 'id' field\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.comments[0]).to.have.property('id');\r",
+							"    pm.expect(jsonData.comments[0].id, '\"id\" must be 2').to.eql(2);\r",
+							"});\r",
+							"pm.test(\"Test comment[0] 'text' field\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.comments[0]).to.have.property('id');\r",
+							"    pm.expect(jsonData.comments[0].text, '\"text\" must be \"Это измененный админом текст комментария #2!\"').to.eql(\"Это измененный админом текст комментария #2!\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Test comment[1] 'id' field\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.comments[1]).to.have.property('id');\r",
+							"    pm.expect(jsonData.comments[1].id, '\"id\" must be 1').to.eql(1);\r",
+							"});\r",
+							"pm.test(\"Test comment[1] 'id' field\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.comments[1]).to.have.property('id');\r",
+							"    pm.expect(jsonData.comments[1].text, '\"id\" must be \"Это первый комментарий к событию!\"').to.eql(\"Это первый комментарий к событию!\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl1}}/events/:eventId",
+					"host": [
+						"{{baseUrl1}}"
+					],
+					"path": [
+						"events",
+						":eventId"
+					],
+					"variable": [
+						{
+							"key": "eventId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Изменение статуса события 1 на \"PUBLISHED\"",
 			"event": [
 				{
@@ -1223,7 +1321,78 @@
 			"response": []
 		},
 		{
-			"name": "Получение события со списком комментариев к нему",
+			"name": "Получение события с количеством комментариев к нему",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code should be 200\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);\r",
+							"});\r",
+							"pm.test(\"Test event 'id' field\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('id');\r",
+							"    pm.expect(jsonData.id, '\"id\" must be \"1\"').to.eql(1);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Test list of comments\", function () {\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.comments.length, 'List length must be 2').to.eql(2);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Test comment[0] 'id' field\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.comments[0]).to.have.property('id');\r",
+							"    pm.expect(jsonData.comments[0].id, '\"id\" must be 2').to.eql(2);\r",
+							"});\r",
+							"pm.test(\"Test comment[0] 'text' field\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.comments[0]).to.have.property('id');\r",
+							"    pm.expect(jsonData.comments[0].text, '\"text\" must be \"Это измененный админом текст комментария #2!\"').to.eql(\"Это измененный админом текст комментария #2!\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Test comment[1] 'id' field\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.comments[1]).to.have.property('id');\r",
+							"    pm.expect(jsonData.comments[1].id, '\"id\" must be 1').to.eql(1);\r",
+							"});\r",
+							"pm.test(\"Test comment[1] 'id' field\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.comments[1]).to.have.property('id');\r",
+							"    pm.expect(jsonData.comments[1].text, '\"id\" must be \"Это первый комментарий к событию!\"').to.eql(\"Это первый комментарий к событию!\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl1}}/events/:eventId",
+					"host": [
+						"{{baseUrl1}}"
+					],
+					"path": [
+						"events",
+						":eventId"
+					],
+					"variable": [
+						{
+							"key": "eventId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Получение всех комментариев к событию по eventId",
 			"event": [
 				{
 					"listen": "test",

@@ -11,14 +11,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.client.StatisticsClient;
+import ru.practicum.dto.CommentDtoResponse;
 import ru.practicum.dto.EventFullDto;
 import ru.practicum.dto.EventShortDto;
 import ru.practicum.model.EventState;
 import ru.practicum.model.SortParameter;
+import ru.practicum.service.CommentService;
 import ru.practicum.service.EventService;
 import ru.practicum.util.EventsAdminRequest;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
 import java.time.LocalDateTime;
@@ -31,6 +34,7 @@ import java.util.List;
 @Slf4j
 public class EventPublicController {
     private final EventService eventService;
+    private final CommentService commentService;
     private final StatisticsClient statisticsClient;
 
     @GetMapping
@@ -68,5 +72,13 @@ public class EventPublicController {
         log.info("GET public запрос на получение подробной информации об опубликованном событии по id {}", id);
         statisticsClient.saveHit(request);
         return ResponseEntity.ok(eventService.getEventPublic(id));
+    }
+
+    @GetMapping("/{eventId}/comments")
+    public ResponseEntity<List<CommentDtoResponse>> getCommentsByEvent(@PathVariable(value = "eventId") @Positive Long eventId,
+                                                                       @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
+                                                                       @RequestParam(value = "size", defaultValue = "10") @Min(1) @Max(200) Integer size) {
+        log.info("GET Public запрос на получение комментариев к событию с id {}", eventId);
+        return ResponseEntity.ok(commentService.getCommentsByEvent(eventId, from, size));
     }
 }
