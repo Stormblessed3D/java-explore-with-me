@@ -48,8 +48,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static org.springframework.data.domain.Sort.Direction.DESC;
-
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
@@ -387,7 +385,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private Map<Long, Long> getNumberOfCommentsByEvent(List<Event> events) {
-        return commentRepository.countCommentsByEvent(events, Sort.by(DESC, "createdOn")).stream()
+        return commentRepository.countCommentsByEvent(events).stream()
                 .collect(Collectors.toMap(EventCommentsCount::getEventId, EventCommentsCount::getNumberOfComments));
     }
 }

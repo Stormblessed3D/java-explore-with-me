@@ -35,5 +35,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             "JOIN c.event as e " +
             "WHERE (e in ?1) " +
             "GROUP BY e.id")
-    List<EventCommentsCount> countCommentsByEvent(List<Event> events, Sort sort);
+    List<EventCommentsCount> countCommentsByEvent(List<Event> events);
 }
