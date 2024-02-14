@@ -264,7 +264,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "138"
+							"value": "1"
 						}
 					]
 				}
@@ -340,7 +340,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "138"
+							"value": "1"
 						}
 					]
 				}
@@ -416,7 +416,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "138"
+							"value": "1"
 						}
 					]
 				}
@@ -469,7 +469,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "138"
+							"value": "1"
 						}
 					]
 				}
@@ -522,7 +522,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "138"
+							"value": "1"
 						}
 					]
 				}
@@ -597,7 +597,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "138"
+							"value": "1"
 						},
 						{
 							"key": "commentId",
@@ -701,7 +701,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "138"
+							"value": "1"
 						},
 						{
 							"key": "commentId",
@@ -753,7 +753,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "138"
+							"value": "1"
 						},
 						{
 							"key": "commentId",
@@ -980,7 +980,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl1}}/admin/comments?userId=138&from=0&size=100",
+					"raw": "{{baseUrl1}}/admin/comments?userId=1&from=0&size=100",
 					"host": [
 						"{{baseUrl1}}"
 					],
@@ -991,7 +991,7 @@
 					"query": [
 						{
 							"key": "userId",
-							"value": "138"
+							"value": "1"
 						},
 						{
 							"key": "from",
@@ -1037,7 +1037,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl1}}/admin/comments?userId=138&from=0&size=-100",
+					"raw": "{{baseUrl1}}/admin/comments?userId=1&from=0&size=-100",
 					"host": [
 						"{{baseUrl1}}"
 					],
@@ -1048,7 +1048,7 @@
 					"query": [
 						{
 							"key": "userId",
-							"value": "138"
+							"value": "1"
 						},
 						{
 							"key": "from",
@@ -1094,7 +1094,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl1}}/admin/comments?userId=138&from=-1&size=100",
+					"raw": "{{baseUrl1}}/admin/comments?userId=1&from=-1&size=100",
 					"host": [
 						"{{baseUrl1}}"
 					],
@@ -1105,7 +1105,7 @@
 					"query": [
 						{
 							"key": "userId",
-							"value": "138"
+							"value": "1"
 						},
 						{
 							"key": "from",
@@ -1179,7 +1179,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl1}}/admin/comments?userId=138",
+					"raw": "{{baseUrl1}}/admin/comments?userId=1",
 					"host": [
 						"{{baseUrl1}}"
 					],
@@ -1190,7 +1190,7 @@
 					"query": [
 						{
 							"key": "userId",
-							"value": "138"
+							"value": "1"
 						}
 					]
 				}
@@ -1204,42 +1204,8 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code should be 200\", function () {\r",
-							"    pm.expect(pm.response.code).to.be.oneOf([200]);\r",
-							"});\r",
-							"pm.test(\"Test event 'id' field\", function () {\r",
-							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData).to.have.property('id');\r",
-							"    pm.expect(jsonData.id, '\"id\" must be \"1\"').to.eql(1);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Test list of comments\", function () {\r",
-							"    pm.response.to.be.withBody;\r",
-							"    pm.response.to.be.json;\r",
-							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.comments.length, 'List length must be 2').to.eql(2);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Test comment[0] 'id' field\", function () {\r",
-							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.comments[0]).to.have.property('id');\r",
-							"    pm.expect(jsonData.comments[0].id, '\"id\" must be 2').to.eql(2);\r",
-							"});\r",
-							"pm.test(\"Test comment[0] 'text' field\", function () {\r",
-							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.comments[0]).to.have.property('id');\r",
-							"    pm.expect(jsonData.comments[0].text, '\"text\" must be \"Это измененный админом текст комментария #2!\"').to.eql(\"Это измененный админом текст комментария #2!\");\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Test comment[1] 'id' field\", function () {\r",
-							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.comments[1]).to.have.property('id');\r",
-							"    pm.expect(jsonData.comments[1].id, '\"id\" must be 1').to.eql(1);\r",
-							"});\r",
-							"pm.test(\"Test comment[1] 'id' field\", function () {\r",
-							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.comments[1]).to.have.property('id');\r",
-							"    pm.expect(jsonData.comments[1].text, '\"id\" must be \"Это первый комментарий к событию!\"').to.eql(\"Это первый комментарий к событию!\");\r",
+							"pm.test(\"Status code should be 409\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([409]);\r",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1250,13 +1216,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl1}}/events/:eventId",
+					"raw": "{{baseUrl1}}/events/:eventId/comments",
 					"host": [
 						"{{baseUrl1}}"
 					],
 					"path": [
 						"events",
-						":eventId"
+						":eventId",
+						"comments"
 					],
 					"variable": [
 						{
@@ -1336,33 +1303,11 @@
 							"    pm.expect(jsonData.id, '\"id\" must be \"1\"').to.eql(1);\r",
 							"});\r",
 							"\r",
-							"pm.test(\"Test list of comments\", function () {\r",
+							"pm.test(\"Test numberOfComments\", function () {\r",
 							"    pm.response.to.be.withBody;\r",
 							"    pm.response.to.be.json;\r",
 							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.comments.length, 'List length must be 2').to.eql(2);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Test comment[0] 'id' field\", function () {\r",
-							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.comments[0]).to.have.property('id');\r",
-							"    pm.expect(jsonData.comments[0].id, '\"id\" must be 2').to.eql(2);\r",
-							"});\r",
-							"pm.test(\"Test comment[0] 'text' field\", function () {\r",
-							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.comments[0]).to.have.property('id');\r",
-							"    pm.expect(jsonData.comments[0].text, '\"text\" must be \"Это измененный админом текст комментария #2!\"').to.eql(\"Это измененный админом текст комментария #2!\");\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Test comment[1] 'id' field\", function () {\r",
-							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.comments[1]).to.have.property('id');\r",
-							"    pm.expect(jsonData.comments[1].id, '\"id\" must be 1').to.eql(1);\r",
-							"});\r",
-							"pm.test(\"Test comment[1] 'id' field\", function () {\r",
-							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.comments[1]).to.have.property('id');\r",
-							"    pm.expect(jsonData.comments[1].text, '\"id\" must be \"Это первый комментарий к событию!\"').to.eql(\"Это первый комментарий к событию!\");\r",
+							"    pm.expect(jsonData.numberOfComments, 'numberOfComments must be 2').to.eql(2);\r",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1401,39 +1346,34 @@
 							"pm.test(\"Status code should be 200\", function () {\r",
 							"    pm.expect(pm.response.code).to.be.oneOf([200]);\r",
 							"});\r",
-							"pm.test(\"Test event 'id' field\", function () {\r",
-							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData).to.have.property('id');\r",
-							"    pm.expect(jsonData.id, '\"id\" must be \"1\"').to.eql(1);\r",
-							"});\r",
 							"\r",
 							"pm.test(\"Test list of comments\", function () {\r",
 							"    pm.response.to.be.withBody;\r",
 							"    pm.response.to.be.json;\r",
 							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.comments.length, 'List length must be 2').to.eql(2);\r",
+							"    pm.expect(jsonData.length, 'List length must be 2').to.eql(2);\r",
 							"});\r",
 							"\r",
 							"pm.test(\"Test comment[0] 'id' field\", function () {\r",
 							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.comments[0]).to.have.property('id');\r",
-							"    pm.expect(jsonData.comments[0].id, '\"id\" must be 2').to.eql(2);\r",
+							"    pm.expect(jsonData[0]).to.have.property('id');\r",
+							"    pm.expect(jsonData[0].id, '\"id\" must be 2').to.eql(2);\r",
 							"});\r",
 							"pm.test(\"Test comment[0] 'text' field\", function () {\r",
 							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.comments[0]).to.have.property('id');\r",
-							"    pm.expect(jsonData.comments[0].text, '\"text\" must be \"Это измененный админом текст комментария #2!\"').to.eql(\"Это измененный админом текст комментария #2!\");\r",
+							"    pm.expect(jsonData[0]).to.have.property('id');\r",
+							"    pm.expect(jsonData[0].text, '\"text\" must be \"Это измененный админом текст комментария #2!\"').to.eql(\"Это измененный админом текст комментария #2!\");\r",
 							"});\r",
 							"\r",
 							"pm.test(\"Test comment[1] 'id' field\", function () {\r",
 							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.comments[1]).to.have.property('id');\r",
-							"    pm.expect(jsonData.comments[1].id, '\"id\" must be 1').to.eql(1);\r",
+							"    pm.expect(jsonData[1]).to.have.property('id');\r",
+							"    pm.expect(jsonData[1].id, '\"id\" must be 1').to.eql(1);\r",
 							"});\r",
-							"pm.test(\"Test comment[1] 'id' field\", function () {\r",
+							"pm.test(\"Test comment[1] 'text' field\", function () {\r",
 							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.comments[1]).to.have.property('id');\r",
-							"    pm.expect(jsonData.comments[1].text, '\"id\" must be \"Это первый комментарий к событию!\"').to.eql(\"Это первый комментарий к событию!\");\r",
+							"    pm.expect(jsonData[1]).to.have.property('text');\r",
+							"    pm.expect(jsonData[1].text, '\"text\" must be \"Это первый комментарий к событию!\"').to.eql(\"Это первый комментарий к событию!\");\r",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1444,13 +1384,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl1}}/events/:eventId",
+					"raw": "{{baseUrl1}}/events/:eventId/comments",
 					"host": [
 						"{{baseUrl1}}"
 					],
 					"path": [
 						"events",
-						":eventId"
+						":eventId",
+						"comments"
 					],
 					"variable": [
 						{
@@ -1536,7 +1477,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl1}}/admin/comments?userId=138&from=0&size=100",
+					"raw": "{{baseUrl1}}/admin/comments?userId=1&from=0&size=100",
 					"host": [
 						"{{baseUrl1}}"
 					],
@@ -1547,7 +1488,7 @@
 					"query": [
 						{
 							"key": "userId",
-							"value": "138"
+							"value": "1"
 						},
 						{
 							"key": "from",
