@@ -264,7 +264,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "138"
 						}
 					]
 				}
@@ -340,7 +340,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "138"
 						}
 					]
 				}
@@ -416,7 +416,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "138"
 						}
 					]
 				}
@@ -469,7 +469,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "138"
 						}
 					]
 				}
@@ -522,7 +522,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "138"
 						}
 					]
 				}
@@ -597,7 +597,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "138"
 						},
 						{
 							"key": "commentId",
@@ -701,7 +701,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "138"
 						},
 						{
 							"key": "commentId",
@@ -753,7 +753,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "138"
 						},
 						{
 							"key": "commentId",
@@ -887,7 +887,7 @@
 			"response": []
 		},
 		{
-			"name": "Изменение комментария на комментарий без текста Copy",
+			"name": "Изменение комментария на комментарий без текста",
 			"event": [
 				{
 					"listen": "test",
@@ -980,7 +980,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl1}}/admin/comments?userId=1&from=0&size=100",
+					"raw": "{{baseUrl1}}/admin/comments?userId=138&from=0&size=100",
 					"host": [
 						"{{baseUrl1}}"
 					],
@@ -991,7 +991,7 @@
 					"query": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "138"
 						},
 						{
 							"key": "from",
@@ -1037,7 +1037,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl1}}/admin/comments?userId=1&from=0&size=-100",
+					"raw": "{{baseUrl1}}/admin/comments?userId=138&from=0&size=-100",
 					"host": [
 						"{{baseUrl1}}"
 					],
@@ -1048,7 +1048,7 @@
 					"query": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "138"
 						},
 						{
 							"key": "from",
@@ -1094,7 +1094,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl1}}/admin/comments?userId=1&from=-1&size=100",
+					"raw": "{{baseUrl1}}/admin/comments?userId=138&from=-1&size=100",
 					"host": [
 						"{{baseUrl1}}"
 					],
@@ -1105,7 +1105,7 @@
 					"query": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "138"
 						},
 						{
 							"key": "from",
@@ -1179,7 +1179,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl1}}/admin/comments?userId=1",
+					"raw": "{{baseUrl1}}/admin/comments?userId=138",
 					"host": [
 						"{{baseUrl1}}"
 					],
@@ -1190,7 +1190,7 @@
 					"query": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "138"
 						}
 					]
 				}
@@ -1477,7 +1477,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl1}}/admin/comments?userId=1&from=0&size=100",
+					"raw": "{{baseUrl1}}/admin/comments?userId=138&from=0&size=100",
 					"host": [
 						"{{baseUrl1}}"
 					],
@@ -1488,7 +1488,7 @@
 					"query": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "138"
 						},
 						{
 							"key": "from",
