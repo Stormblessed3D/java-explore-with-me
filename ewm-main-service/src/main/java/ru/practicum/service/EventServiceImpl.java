@@ -31,9 +31,11 @@ import ru.practicum.model.RequestStatus;
 import ru.practicum.model.SortParameter;
 import ru.practicum.model.User;
 import ru.practicum.repository.CategoryRepository;
+import ru.practicum.repository.CommentRepository;
 import ru.practicum.repository.EventRepository;
 import ru.practicum.repository.RequestRepository;
 import ru.practicum.repository.UserRepository;
+import ru.practicum.util.EventCommentsCount;
 import ru.practicum.util.EventsAdminRequest;
 import ru.practicum.util.RequestShortCount;
 
@@ -53,6 +55,7 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final RequestRepository requestRepository;
+    private final CommentRepository commentRepository;
     private final EventMapper eventMapper;
     private final RequestMapper requestMapper;
     private final StatisticsClient statisticsClient;
@@ -66,7 +69,7 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Category with id=%d was not found",
                         eventDto.getCategory())));
         Event event = eventMapper.newEventDtoToEvent(eventDto, user, category);
-        return eventMapper.eventToEventFullDto(eventRepository.save(event), 0L, 0L);
+        return eventMapper.eventToEventFullDto(eventRepository.save(event), 0L, 0L,  0L);
     }
 
     @Override
@@ -80,8 +83,9 @@ public class EventServiceImpl implements EventService {
         }
         Map<Long, Long> confirmedRequests = getConfirmedRequests(List.of(event));
         Map<Long, Long> views = getEventViews(List.of(event));
+        Map<Long, Long> comments = getNumberOfCommentsByEvent(List.of(event));
         return eventMapper.eventToEventFullDto(event, confirmedRequests.getOrDefault(event.getId(), 0L),
-                views.getOrDefault(event.getId(), 0L));
+                views.getOrDefault(event.getId(), 0L), comments.getOrDefault(event.getId(), 0L));
     }
 
     @Override
@@ -137,8 +141,9 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.save(eventToUpdate);
         Map<Long, Long> confirmedRequests = getConfirmedRequests(List.of(event));
         Map<Long, Long> views = getEventViews(List.of(event));
+        Map<Long, Long> comments = getNumberOfCommentsByEvent(List.of(event));
         return eventMapper.eventToEventFullDto(event, confirmedRequests.getOrDefault(event.getId(), 0L),
-                views.getOrDefault(event.getId(), 0L));
+                views.getOrDefault(event.getId(), 0L), comments.getOrDefault(event.getId(), 0L));
     }
 
     @Override
@@ -190,11 +195,14 @@ public class EventServiceImpl implements EventService {
         List<Event> events1 = events.getContent();
         Map<Long, Long> confirmedRequests = getConfirmedRequests(events1);
         Map<Long, Long> eventViews = getEventViews(events1);
+        Map<Long, Long> comments = getNumberOfCommentsByEvent(events1);
+
         List<EventFullDto> eventsFullDtos = new ArrayList<>();
         for (Event event : events1) {
             Long views = eventViews.get(event.getId());
             Long numberOfConfirmedRequests = confirmedRequests.get(event.getId());
-            EventFullDto eventDto = eventMapper.eventToEventFullDto(event, numberOfConfirmedRequests, views);
+            Long eventComments = comments.getOrDefault(event.getId(), 0L);
+            EventFullDto eventDto = eventMapper.eventToEventFullDto(event, numberOfConfirmedRequests, views, eventComments);
             eventsFullDtos.add(eventDto);
         }
         eventsFullDtos.sort(Comparator.comparing(EventFullDto::getViews).reversed());
@@ -244,8 +252,9 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Event with id=%d was not found", eventId)));
         Map<Long, Long> confirmedRequests = getConfirmedRequests(List.of(event));
         Map<Long, Long> views = getEventViews(List.of(event));
+        Map<Long, Long> comments = getNumberOfCommentsByEvent(List.of(event));
         return eventMapper.eventToEventFullDto(event, confirmedRequests.getOrDefault(event.getId(), 0L),
-                views.getOrDefault(event.getId(), 0L));
+                views.getOrDefault(event.getId(), 0L), comments.getOrDefault(event.getId(), 0L));
     }
 
     @Override
@@ -285,8 +294,9 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.save(eventToUpdate);
         Map<Long, Long> confirmedRequests = getConfirmedRequests(List.of(event));
         Map<Long, Long> views = getEventViews(List.of(event));
+        Map<Long, Long> comments = getNumberOfCommentsByEvent(List.of(event));
         return eventMapper.eventToEventFullDto(event, confirmedRequests.getOrDefault(event.getId(), 0L),
-                views.getOrDefault(event.getId(), 0L));
+                views.getOrDefault(event.getId(), 0L), comments.getOrDefault(event.getId(), 0L));
     }
 
     private boolean isParticipantLimitAchieved(Event event) {
@@ -316,7 +326,6 @@ public class EventServiceImpl implements EventService {
     }
 
     private Map<Long, Long> getConfirmedRequests(List<Event> events) {
-        List<RequestShortCount> shorts = requestRepository.countByEventInAndStatus(events, RequestStatus.CONFIRMED);
         return requestRepository.countByEventInAndStatus(events, RequestStatus.CONFIRMED).stream()
                 .collect(Collectors.toMap(RequestShortCount::getEventId, RequestShortCount::getCount));
     }
@@ -373,5 +382,10 @@ public class EventServiceImpl implements EventService {
         return conditions.stream()
                 .reduce(BooleanExpression::and)
                 .get();
+    }
+
+    private Map<Long, Long> getNumberOfCommentsByEvent(List<Event> events) {
+        return commentRepository.countCommentsByEvent(events).stream()
+                .collect(Collectors.toMap(EventCommentsCount::getEventId, EventCommentsCount::getNumberOfComments));
     }
 }

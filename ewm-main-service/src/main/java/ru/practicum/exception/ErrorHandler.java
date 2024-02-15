@@ -61,6 +61,14 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handle(CommentException e) {
+        log.warn("Получен статус 409 Conflict {}", e.getMessage());
+        return new ApiError(HttpStatus.CONFLICT.toString(),"For the requested operation the conditions are not met.",
+                e.getMessage(), LocalDateTime.now().format(DATE_TIME_FORMATTER));
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiError handle(EntityNotFoundException e) {
         log.warn("Получен статус 404 Not found {}", e.getMessage(), e);

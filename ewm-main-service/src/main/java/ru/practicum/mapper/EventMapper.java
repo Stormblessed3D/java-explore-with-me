@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.practicum.dto.EventFullDto;
 import ru.practicum.dto.EventShortDto;
 import ru.practicum.dto.Location;
@@ -21,6 +22,9 @@ import java.util.Objects;
 @Mapper(componentModel = "spring",
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public abstract class EventMapper {
+    @Autowired
+    private CommentMapper commentMapper;
+
     public Event newEventDtoToEvent(NewEventDto eventDto, User user, Category category) {
         return Event.builder()
                 .title(eventDto.getTitle())
@@ -40,7 +44,7 @@ public abstract class EventMapper {
                 .build();
     }
 
-    public EventFullDto eventToEventFullDto(Event event, Long confirmedRequests, Long views) {
+    public EventFullDto eventToEventFullDto(Event event, Long confirmedRequests, Long views, Long numberOfComments) {
         return EventFullDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
@@ -58,6 +62,7 @@ public abstract class EventMapper {
                 .state(event.getState())
                 .title(event.getTitle())
                 .views(Objects.requireNonNullElse(views, 0L))
+                .numberOfComments(numberOfComments)
                 .build();
     }
 
