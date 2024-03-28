@@ -7,4 +7,5 @@
 **Стек технологий:** <br /> 
 Java, Spring Boot, Spring MVC, Maven, Hibernate, Mockito, JUnit4, Lombok, MapStruct, QueryDSL, PostgreSQL, Docker. <br />
 <br />
-[Ссылка на pull request](https://github.com/Stormblessed3D/java-explore-with-me/pull/3) <br />
+### ER diagram of main service
+![ER diagram](https://github.com/Stormblessed3D/java-explore-with-me/blob/main/ewm-main-service/ER%20diagram_Explore%20with%20me_v2.png)
